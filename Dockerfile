@@ -16,11 +16,11 @@ RUN python -m venv /py && \
     adduser \
     --disabled-password \
     --no-create-home \
-    fastapi-user
-# mkdir -p /vol/web/media && \
-# mkdir -p /vol/web/static && \
-# chown -R fastapi-user:fastapi-user /vol && \
-# chmod -R 755 /vol
+    fastapi-user && \
+    mkdir -p /vol/web/media && \
+    mkdir -p /vol/web/static && \
+    chown -R fastapi-user:fastapi-user /vol && \
+    chmod -R 755 /vol
 
 ENV PATH="/py/bin:$PATH"
 
