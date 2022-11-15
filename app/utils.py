@@ -28,4 +28,6 @@ class TextpreProc:
         result = ''.join(result)
         splited_result = self._split_result(result)
         sorted_result = self._sort_result(splited_result)
+        if not splited_result:
+            sorted_result = self._sort_result([result])
         return sorted_result
