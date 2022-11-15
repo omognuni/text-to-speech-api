@@ -16,5 +16,5 @@ docker-compose exec tts pytest .
 
 - api/v1/audio/audio_id/text
 - 텍스트 조회 METHOD GET
-- 텍스트 생성 METHOD POST payload {text:[]}, query_params {index:}
+- 텍스트 생성, 중간 삽입 METHOD POST payload {text:[]}, query_params {index:}
 - 텍스트 삭제 METHOD DELETE query_params {index:}
