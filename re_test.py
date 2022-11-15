@@ -5,6 +5,7 @@ sep = '[\.\!\?]+'
 s = re.compile(regex)
 
 text="입력 \'tex##$t\' list는 @)()\"길이\"@@@가 1입니다@@!!! 빈 문장은 삭제됩니다. 한글, 영어, 숫자, 물음표, 느낌표, 마침표, 따옴표, 공백을 제외한 나머지는 문장에  포함되지 않습니다. 문장의 맨앞, 맨뒤에는 공백이 위치하지 않습니다."
+# text="바꾸기 1"
 
 result = s.findall(text)
 # print(''.join(result))
@@ -38,6 +39,8 @@ class TextpreProc:
         result = ''.join(result)
         splited_result = self._split_result(result)
         sorted_result = self._sort_result(splited_result)
+        if not splited_result:
+            sorted_result = self._sort_result([result])
         return sorted_result
         
 
