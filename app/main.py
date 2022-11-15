@@ -95,7 +95,7 @@ async def create_audio(audio: schemas.Audio, db: Session = Depends(get_db)):
         
     return db_audio
     
-@app.put("/audio/{audio_id}")
+@app.put("/audio/{audio_id}", response_model=schemas.AudioDetail)
 async def update_audio(audio_id: int, audio_text: schemas.AudioText, db: Session = Depends(get_db)):
     db_texts = db.query(models.AudioText).filter(models.audio_id == audio_id).all()
     folder = os.path.join(config.MEDIA_ROOT, f'{audio_id}')
@@ -103,7 +103,13 @@ async def update_audio(audio_id: int, audio_text: schemas.AudioText, db: Session
         for i in range(audio_id, len(db_texts)):
             file = os.path.join(folder, f'{db_texts[i].index}.mp3')
             db_texts[i].index += 1
+            db.add(db_texts[i])
+            db.commit()
             db.refresh(db_texts[i])
             os.rename(file, '{db_texts[i].index}.mp3')
-        
-    return
+            
+    db_audio_text = models.AudioText(index=audio_text.index, content=audio_text.content, audio_id=audio_id)
+
+    
+    db_audio = db.query(models.Audio).filter(models.Audio.id == audio_id).join(models.AudioText).first()
+    return  db_audio
