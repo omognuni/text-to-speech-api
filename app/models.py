@@ -12,7 +12,7 @@ class Audio(Base):
     speed = Column(Integer, default=1)
     project_id = Column(Integer, ForeignKey("project.id"))
     
-    texts = relationship("AudioText", back_populates="audio")
+    texts = relationship("AudioText", back_populates="audio", order_by="asc(AudioText.index)", cascade='all,delete')
     project = relationship("Project", back_populates="audios")
 
     
@@ -24,7 +24,7 @@ class Project(Base):
     created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(DateTime, default=datetime.now())
     
-    audios = relationship("Audio", back_populates="project")
+    audios = relationship("Audio", back_populates="project", cascade='all,delete')
     
     
 class AudioText(Base):
