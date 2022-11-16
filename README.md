@@ -11,6 +11,7 @@ docker-compose up --build
 
 ### TODO
 - 테스트 코드 작성
+- 주석 작성
 - user 생성
 - refactor (db.add()/commit()/refresh 반복 없애기)
 - ~~파일 구조 변경~~
@@ -23,24 +24,24 @@ docker-compose up --build
 
 ### Project
 
-| 내용              | Method | URL                   |
-| ----------------- | ------ | --------------------- |
-| 프로젝트 가져오기 | GET    | /project              |
-| 프로젝트 생성     | POST   | /project              |
-| 프로젝트 상세     | GET    | /project/{project_id} |
-| 프로젝트 삭제     | DELETE | /project/{project_id} |
+| 내용              | Method | URL                         |
+| ----------------- | ------ | --------------------------- |
+| 프로젝트 가져오기 | GET    | api/v1/project              |
+| 프로젝트 생성     | POST   | api/v1/project              |
+| 프로젝트 상세     | GET    | api/v1/project/{project_id} |
+| 프로젝트 삭제     | DELETE | api/v1/project/{project_id} |
 
 ### Audio
 
-| 내용              | Method | URL                      |
-| ----------------- | ------ | ------------------------ |
-| Audio 가져오기    | GET    | /audio                   |
-| Audio 생성        | POST   | /audio                   |
-| Audio 상세        | GET    | /audio/{audio_id}        |
-| Audio 삭제        | DELETE | /audio/{audio_id}        |
-| Audio 텍스트 수정 | POST   | /audio/{audio_id}/modify |
-| Audio 텍스트 추가 | POST   | /audio/{audio_id}/add    |
-| Audio 텍스트 삭제 | POST   | /audio/{audio_id}/remove |
+| 내용              | Method | URL                            |
+| ----------------- | ------ | ------------------------------ |
+| Audio 가져오기    | GET    | api/v1/audio                   |
+| Audio 생성        | POST   | api/v1/audio                   |
+| Audio 상세        | GET    | api/v1/audio/{audio_id}        |
+| Audio 삭제        | DELETE | api/v1/audio/{audio_id}        |
+| Audio 텍스트 수정 | POST   | api/v1/audio/{audio_id}/modify |
+| Audio 텍스트 추가 | POST   | api/v1/audio/{audio_id}/add    |
+| Audio 텍스트 삭제 | POST   | api/v1/audio/{audio_id}/remove |
 
 ### 기타 
 - fastapi 배우면서 기능구현, docker 설정, 테스트 코드 작성하기는 너무 시간이 부족했다.
