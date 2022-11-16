@@ -17,8 +17,6 @@ router = APIRouter(
     tags=['project']
 )
 
-
-
 db.Base.metadata.create_all(bind=engine)
 
 def get_db():
@@ -28,7 +26,6 @@ def get_db():
     finally:
         db.close()
         
-
 @router.get("/")
 async def get_projects(db: Session = Depends(get_db)):
     return db.query(models.Project).all()
