@@ -21,6 +21,3 @@ class AudioDetail(BaseModel):
     class Config:
         orm_mode = True
     
-class Project(BaseModel):
-    title: str
-    
