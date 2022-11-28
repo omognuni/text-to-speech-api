@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -12,13 +12,14 @@ import db
 import config
 from schemas import audio as schemas
 from models import audio as models
+from models.project import Project
 from utils.text import TextpreProc
 
 REGEX = '[a-zA-z0-9ㄱ-ㅣ가-힣\s!,.?\'\"]+'
 SEPERATOR = '[\.\!\?]+'
 
 router = APIRouter(
-    prefix="/audio",
+    prefix="/audios",
     tags=["audio"],
 )
 
@@ -32,7 +33,16 @@ def get_db():
         yield db
     finally:
         db.close()
-        
+
+def get_or_create(model, db, **kwargs):
+    instance = db.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.add(instance)
+        db.commit()
+    return instance
 
 async def save_tts(index, text, audio_id):
     '''text to speech'''
@@ -64,15 +74,18 @@ async def get_audio_detail(audio_id:int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail='Audio not found')
     return db_audio
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.AudioDetail)
 async def create_audio(audio: schemas.Audio, db: Session = Depends(get_db)):    
     db_audio = models.Audio()
     db_audio.speed = audio.speed
-    db_audio.project_id = audio.project_id
-    db.add(db_audio)
+    project = get_or_create(Project, db, id=audio.project_id)
+    db_audio.project_id = project.id
+    
+    db.add(db_audio)    
     db.commit()
     db.refresh(db_audio)
     
+
     texts = text_pre_proc.process(audio.text)
     for text in texts:
         db_audio_text = models.AudioText()
@@ -85,7 +98,8 @@ async def create_audio(audio: schemas.Audio, db: Session = Depends(get_db)):
         db.add(db_audio_text)
         db.commit()
         db.refresh(db_audio_text)
-        
+    
+
     return db_audio
 
 
