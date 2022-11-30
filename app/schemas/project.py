@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 
-class Project(BaseModel):
+class ProjectSchema(BaseModel):
     title: str
