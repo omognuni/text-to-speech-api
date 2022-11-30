@@ -1,10 +1,9 @@
-import os
-
 from dependency_injector import containers, providers
 from pydantic import BaseSettings, Field
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.scoping import ScopedSession
+
+from database import Database
+
+from audio.containers import AudioContainer
 
 
 class DatabaseSettings(BaseSettings):
@@ -15,5 +14,11 @@ class ApplicationSettings(BaseSettings):
     
 class ApplicationContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
-    engine = providers.Singleton(create_engine, url=config.db.url)
-    session = providers.Singleton(sessionmaker, bind=engine)
+    config.from_pydantic(ApplicationSettings())
+    
+    db = providers.Singleton(Database, db_url=config.db.url)
+    
+    audio_package = providers.Container(
+        AudioContainer,
+        db = db,
+    )

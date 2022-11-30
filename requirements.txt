@@ -7,4 +7,5 @@ psycopg2-binary
 SQLAlchemy
 asyncpg
 gtts
+dependency-injector
 httpx
