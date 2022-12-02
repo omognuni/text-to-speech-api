@@ -10,6 +10,8 @@ services:
 
     volumes:
       - ./app:/app
+      - ./static/media:/vol/web/media
+      - ./static/static:/vol/web/static
       - tts-static-data:/vol/web
 
     command: >
