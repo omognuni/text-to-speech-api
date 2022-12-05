@@ -16,33 +16,58 @@ from api.utils import TextpreProc
 REGEX = '[a-zA-z0-9ㄱ-ㅣ가-힣\s!,.?\'\"]+'
 SEPERATOR = '[\.\!\?]+'
 
-text_pre_proc = TextpreProc(REGEX,SEPERATOR)
+text_pre_proc = TextpreProc(REGEX, SEPERATOR)
 
 router = APIRouter(
     prefix="/audios",
     tags=["audio"],
 )
 
+
 @router.get("/")
 @inject
 def get_audios(audio_service: AudioService = Depends(Provide[AudioContainer.audio_service])):
     return audio_service.get_objects()
 
+
 @router.post("/")
 @inject
-def create(audio: AudioSchema, 
-           audio_service: AudioService = Depends(Provide[AudioContainer.audio_service]),
-           audio_text_service: AudioTextService = Depends(Provide[AudioContainer.audio_text_service]),
-           project_service: ProjectService = Depends(Provide[AudioContainer.project_service])
+def create(audio: AudioSchema,
+           audio_service: AudioService = Depends(
+               Provide[AudioContainer.audio_service]),
+           audio_text_service: AudioTextService = Depends(
+               Provide[AudioContainer.audio_text_service]),
+           project_service: ProjectService = Depends(
+               Provide[AudioContainer.project_service])
            ):
+
     audio_dict = audio.dict()
     project_id = audio_dict.pop('project_id')
     texts = audio_dict.pop('text')
-    
+
     project_service.get_or_create(id=project_id)
-    audio = audio_service.create(project_id = project_id, **audio_dict)
+    audio = audio_service.create(project_id=project_id, **audio_dict)
 
     texts = text_pre_proc.process(texts)
-    
     audio_text_service.create(audio_id=audio.id, content=texts)
+
+    return
+
+
+@router.post("/{audio_id}/modify")
+@inject
+async def modify_audio_text(audio_id: int, audio_text: AudioTextSchema,
+                            audio_text_service: AudioTextService = Depends(
+                                Provide[AudioContainer.audio_text_service])
+                            ):
+    audio_text_service.update(index=audio_text.index,
+                              content=audio_text.content, audio_id=audio_id
+                              )
+    return
+
+
+@router.delete("/{audio_id}")
+@inject
+async def delete_audio(audio_id: int, audio_service: AudioService):
+
     return
