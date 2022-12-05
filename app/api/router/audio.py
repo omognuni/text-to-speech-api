@@ -26,13 +26,19 @@ router = APIRouter(
 
 @router.get("/")
 @inject
-def get_audios(audio_service: AudioService = Depends(Provide[AudioContainer.audio_service])):
+async def get_audios(audio_service: AudioService = Depends(Provide[AudioContainer.audio_service])):
     return audio_service.get_objects()
+
+@router.get("/{audio_id}", response_model=AudioDetailSchema)
+@inject
+async def get_audio_detail(audio_id: int, audio_service: AudioService = Depends(Provide[AudioContainer.audio_service])):
+    audio = audio_service.get_object_by_id(audio_id)
+    return audio
 
 
 @router.post("/")
 @inject
-def create(audio: AudioSchema,
+async def create(audio: AudioSchema,
            audio_service: AudioService = Depends(
                Provide[AudioContainer.audio_service]),
            audio_text_service: AudioTextService = Depends(
@@ -60,14 +66,30 @@ async def modify_audio_text(audio_id: int, audio_text: AudioTextSchema,
                             audio_text_service: AudioTextService = Depends(
                                 Provide[AudioContainer.audio_text_service])
                             ):
+    
+    content = text_pre_proc.process(audio_text.content)
     audio_text_service.update(index=audio_text.index,
-                              content=audio_text.content, audio_id=audio_id
+                              content=content, audio_id=audio_id
                               )
     return
 
+@router.post("/{audio_id}/add")
+@inject
+async def add_audio_text(audio_id: int, audio_text: AudioTextSchema,
+                            audio_text_service: AudioTextService = Depends(
+                                Provide[AudioContainer.audio_text_service])
+                            ):
+    content = text_pre_proc.process(audio_text.content)
+    audio_text_service.create(content=content, audio_id=audio_id, index=audio_text.index)
+    
+    return
+    
 
 @router.delete("/{audio_id}")
 @inject
-async def delete_audio(audio_id: int, audio_service: AudioService):
-
+async def delete_audio(audio_id: int, audio_service: AudioService = Depends(
+                                Provide[AudioContainer.audio_service])
+                       ):
+    
+    audio_service.delete(audio_id)
     return
