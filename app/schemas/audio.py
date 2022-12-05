@@ -6,12 +6,17 @@ class AudioSchema(BaseModel):
     text: str
     project_id: int
     
+    class Config:
+        orm_mode = True
+    
+    
 class AudioTextSchema(BaseModel):
     index: int
     content: str
     
     class Config:
         orm_mode = True
+        
     
 class AudioDetailSchema(BaseModel):
     speed: int

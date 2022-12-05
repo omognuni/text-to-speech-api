@@ -12,7 +12,7 @@ class Audio(Base):
     project_id = Column(Integer, ForeignKey("audio_project.id"))
     updated_at = Column(DateTime, default=datetime.now())
     
-    texts = relationship("AudioText", back_populates="audio", order_by="asc(AudioText.index)", cascade='all,delete')
+    texts = relationship("AudioText", back_populates="audio", order_by="asc(AudioText.index)", cascade='all,delete', lazy='subquery')
     project = relationship("AudioProject", back_populates="audios")
 
 
@@ -24,7 +24,7 @@ class AudioText(Base):
     content = Column(Text)
     audio_id = Column(Integer, ForeignKey("audio.id"))
     
-    audio = relationship("Audio", back_populates="texts")
+    audio = relationship("Audio", back_populates="texts", lazy='subquery')
     
 class AudioProject(Base):
     __tablename__ = 'audio_project'
@@ -34,4 +34,4 @@ class AudioProject(Base):
     created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(DateTime, default=datetime.now())
     
-    audios = relationship("Audio", back_populates="project", cascade='all,delete')
+    audios = relationship("Audio", back_populates="project", cascade='all,delete', lazy='subquery')
