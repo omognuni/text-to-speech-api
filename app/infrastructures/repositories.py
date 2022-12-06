@@ -6,6 +6,7 @@ from gtts import gTTS
 import os
 import shutil
 import re
+# import zipfile
 
 from domains.entities.audio import Audio, AudioText
 
@@ -74,7 +75,7 @@ class ProjectRepository(BaseRepository):
     def get_by_id(self, project_id: int):
         with self.session_factory() as session:
             instance = session.query(self.model).filter(
-                self.model.id == project_id).join(Audio).first()
+                self.model.id == project_id).first()
             if not instance:
                 raise NotFoundError(project_id)
             return instance
@@ -89,7 +90,10 @@ class ProjectRepository(BaseRepository):
             session.commit()
 
             for audio in project.audios:
-                shutil.rmtree(os.path.join(self._folder(audio.id)))
+                try:
+                    shutil.rmtree(os.path.join(self._folder(audio.id)))
+                except FileNotFoundError:
+                    pass
         return
 
 
@@ -117,6 +121,12 @@ class AudioRepository(BaseRepository):
             shutil.rmtree(os.path.join(self._folder(audio_id)))
         return
 
+    def get_media(self, audio_id: int):
+        try:
+            path = shutil.make_archive(self._folder(audio_id), 'zip', self._folder(audio_id) )
+            return path
+        except FileNotFoundError:
+            return
 
 class AudioTextRepository(BaseRepository):
 
@@ -153,7 +163,8 @@ class AudioTextRepository(BaseRepository):
                 session.refresh(audio_text)
 
                 self._save_tts(audio_text.index, audio_text.content, audio_id)
-        return
+            texts = session.query(self.model).filter(self.model.audio_id == audio_id).order_by(self.model.index).all()
+            return texts
 
     def update(self, index: int, content: list[str], audio_id: int):
         with self.session_factory() as session:
@@ -165,15 +176,18 @@ class AudioTextRepository(BaseRepository):
             text.content = update[1]
             session.commit()
             session.refresh(text)
-            self.insert(index=index+1, content=content, audio_id=audio_id)
-        return text
+            self._save_tts(index=index, text=update[1], audio_id=audio_id)
+            for i in range(len(content)):
+                content[i][0] -= 1
+        texts = self.insert(index=index+1, content=content, audio_id=audio_id)
+        return texts
 
     def insert(self, index: int, content: list, audio_id: int):
         with self.session_factory() as session:
             texts = session.query(self.model).filter(
-                self.model.audio_id == audio_id).all()
+                self.model.audio_id == audio_id).order_by(self.model.index).all()
             N = len(content)
-            for i in range(len(texts)-1, index, -1):
+            for i in range(len(texts)-1, index - 1, -1):
                 file = os.path.join(self._folder(audio_id),
                                     f'{texts[i].index}.mp3')
                 texts[i].index += N
@@ -185,8 +199,8 @@ class AudioTextRepository(BaseRepository):
                 os.rename(file, os.path.join(self._folder(
                     audio_id), f'{texts[i].index}.mp3'))
 
-            self.add(content=content, audio_id=audio_id, index=index)
-        return
+        texts = self.add(content=content, audio_id=audio_id, index=index)
+        return texts
 
     def delete(self, index, audio_id):
         with self.session_factory() as session:
