@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Response, status
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 from dependency_injector.wiring import inject, Provide
 
 from gtts import gTTS
@@ -10,6 +12,7 @@ from schemas.audio import AudioSchema, AudioDetailSchema, AudioTextSchema
 from schemas.project import ProjectSchema
 from containers import AudioContainer
 from applications.audio_service import AudioService, AudioTextService, ProjectService
+from infrastructures.repositories import NotFoundError
 from api.utils import TextpreProc
 
 
@@ -35,6 +38,12 @@ async def get_audio_detail(audio_id: int, audio_service: AudioService = Depends(
     audio = audio_service.get_object_by_id(audio_id)
     return audio
 
+@router.get("/{audio_id}/media")
+@inject
+async def get_audio_file(audio_id: int, audio_service: AudioService = Depends(Provide[AudioContainer.audio_service])):
+    file = audio_service.get_media(audio_id)
+    return FileResponse(file, media_type='application/octet-stream', filename=f'{audio_id}.zip', background=BackgroundTask(os.remove, file))
+
 
 @router.post("/")
 @inject
@@ -57,7 +66,7 @@ async def create(audio: AudioSchema,
     texts = text_pre_proc.process(texts)
     audio_text_service.create(audio_id=audio.id, content=texts)
 
-    return
+    return audio
 
 
 @router.post("/{audio_id}/modify")
@@ -68,10 +77,14 @@ async def modify_audio_text(audio_id: int, audio_text: AudioTextSchema,
                             ):
     
     content = text_pre_proc.process(audio_text.content)
-    audio_text_service.update(index=audio_text.index,
-                              content=content, audio_id=audio_id
-                              )
-    return
+    try:
+        texts = audio_text_service.update(index=audio_text.index,
+                                content=content, audio_id=audio_id
+                                )
+        return texts
+    except NotFoundError:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+
 
 @router.post("/{audio_id}/add")
 @inject
@@ -80,9 +93,12 @@ async def add_audio_text(audio_id: int, audio_text: AudioTextSchema,
                                 Provide[AudioContainer.audio_text_service])
                             ):
     content = text_pre_proc.process(audio_text.content)
-    audio_text_service.create(content=content, audio_id=audio_id, index=audio_text.index)
+    try:
+        texts = audio_text_service.insert(content=content, audio_id=audio_id, index=audio_text.index)
+        return texts
     
-    return
+    except NotFoundError:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
     
 
 @router.delete("/{audio_id}")
@@ -90,6 +106,9 @@ async def add_audio_text(audio_id: int, audio_text: AudioTextSchema,
 async def delete_audio(audio_id: int, audio_service: AudioService = Depends(
                                 Provide[AudioContainer.audio_service])
                        ):
-    
-    audio_service.delete(audio_id)
-    return
+    try:
+        audio_service.delete(audio_id)
+        return
+    except NotFoundError:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+

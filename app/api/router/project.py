@@ -16,10 +16,35 @@ router = APIRouter(
 def get_projects(project_service: ProjectService = Depends(Provide[AudioContainer.project_service])):
     return project_service.get_objects()
 
+@router.get("/{project_id}")
+@inject
+def get_project_detail(project_id:int, project_service: ProjectService = Depends(Provide[AudioContainer.project_service])):
+    return project_service.get_object_by_id(project_id)
+
 @router.post("/")
 @inject
-def create_projects(project: ProjectSchema, 
+def create_projects(
+                    project: ProjectSchema, 
                     project_service: ProjectService = Depends(Provide[AudioContainer.project_service])
                     ):
     project_dict = project.dict()
     return project_service.create(**project_dict)
+
+@router.patch("/{project_id}")
+@inject
+def update_project(
+                   project: ProjectSchema,
+                   project_id: int,
+                   project_service: ProjectService = Depends(Provide[AudioContainer.project_service])
+                   ):
+    project_service.update(project_id)
+    return
+
+@router.delete("/{project_id}")
+@inject
+def delete_project(
+                   project_id: int,
+                   project_service: ProjectService = Depends(Provide[AudioContainer.project_service])
+                   ):
+    project_service.delete(project_id)
+    return
