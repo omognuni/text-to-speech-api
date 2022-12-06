@@ -26,7 +26,8 @@ class ProjectService(BaseService):
     pass
 
 class AudioService(BaseService):
-    pass
+    def get_media(self, audio_id: int):
+        return self._repository.get_media(audio_id)
     
 class AudioTextService(BaseService):
     

@@ -13,7 +13,7 @@ class Audio(Base):
     updated_at = Column(DateTime, default=datetime.now())
     
     texts = relationship("AudioText", back_populates="audio", order_by="asc(AudioText.index)", cascade='all,delete', lazy='subquery')
-    project = relationship("AudioProject", back_populates="audios")
+    project = relationship("AudioProject", back_populates="audios", lazy='subquery')
 
 
 class AudioText(Base):
