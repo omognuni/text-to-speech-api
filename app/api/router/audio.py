@@ -3,10 +3,7 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from dependency_injector.wiring import inject, Provide
 
-from gtts import gTTS
 import os
-import shutil
-import re
 
 from schemas.audio import AudioSchema, AudioDetailSchema, AudioTextSchema
 from schemas.project import ProjectSchema
