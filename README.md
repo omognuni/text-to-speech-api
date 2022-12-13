@@ -11,10 +11,10 @@ docker-compose up --build
 
 ### TODO
 - 테스트 코드 작성
-- 다운로드 구현
+- ~~다운로드 구현~~
 - 주석 작성
 - user 생성
-- refactor (db.add()/commit()/refresh 반복 없애기)
+- ~~refactor (db.add()/commit()/refresh 반복 없애기)~~
 - ~~파일 구조 변경~~
 - ~~url 구조 변경~~
 
@@ -63,5 +63,5 @@ docker-compose up --build
 | Audio 텍스트 수정 | POST   | api/v1/audio/{audio_id}/modify |
 | Audio 텍스트 추가 | POST   | api/v1/audio/{audio_id}/add    |
 | Audio 텍스트 삭제 | POST   | api/v1/audio/{audio_id}/remove |
-| Audio 다운로드    | POST   | api/v1/audio/{audio_id}/download|
+| Audio 다운로드    | POST   | api/v1/audio/{audio_id}/media  |
 
