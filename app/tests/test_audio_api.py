@@ -1,47 +1,64 @@
+from unittest import mock
+from datetime import datetime
+
 import pytest
-from sqlalchemy.orm import Session
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 
-from app.main import app
+from infrastructures.repositories import AudioRepository, AudioTextRepository
+from domains.entities.audio import Audio, AudioText
+from main import app
+
+DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 
-def test_create_audio(client: TestClient, session: Session):
-    payload = {
-        'speed': 1,
-        'text': '입력 tex##$t list는 @)()길이@@@가 1입니다@@!!!\
-            빈 문장은 삭제됩니다. \
-            한글, 영어, 숫자, 물음표, 느낌표, 마침표, 따옴표, 공백을 제외한 나머지는 문장에 포함되지 않습니다.\
-            문장의 맨앞, 맨뒤에는 공백이 위치하지 않습니다.',
-        'project_id': 1
-    }
+@pytest.fixture
+def client():
+    yield TestClient(app)
     
-    answer = ['입력 text list는 길이가 1입니다!!!', '빈 문장은 삭제됩니다.', \
-        '한글, 영어, 숫자, 물음표, 느낌표, 마침표, 따옴표, 공백을 제외한 나머지는 문장에 포함되지 않습니다.', \
-            '문장의 맨앞, 맨뒤에는 공백이 위치하지 않습니다.']
     
-    url = app.url_path_for('create_audio')
-    res = client.post(url, json=payload)
-    texts = res.json()['texts']
+class TestAudioApi:
 
-    assert len(texts) == 4
-    for i in range(len(texts)):
-        assert texts[i]['content'] == answer[i]
-    assert res.status_code == 201
+    @pytest.fixture(scope="class")
+    def audio_repo_mock(self):
+        return mock.Mock(spec=AudioRepository)
     
-def test_get_audios(client: TestClient, session: Session):
-    res = client.get(app.url_path_for('get_audios'))
+    def test_get_audios(self, client, audio_repo_mock):
+        '''오디오 목록 가져오기 테스트'''
+        update_time = datetime.now()
+        audio_repo_mock.get_all.return_value = [
+            Audio(id=1, speed=1, project_id=1, updated_at=update_time),
+            Audio(id=2, speed=1, project_id=1, updated_at=update_time)
+        ]
+        
+        with app.container.audio_package.audio_repository.override(audio_repo_mock):
+            res = client.get("/api/v1/audios")
+            
+        assert res.status_code == 200
+        data = res.json()
+        assert data == [
+            {"id": 1, "speed": 1, "project_id": 1, "updated_at": update_time.strftime(DT_FORMAT)},
+            {"id": 2, "speed": 1, "project_id": 1, "updated_at": update_time.strftime(DT_FORMAT)}
+        ]
+        
+    def test_get_audio_detail(self, client, audio_repo_mock):
+        '''오디오 상세 테스트'''
+        audio_repo_mock.get_by_id.return_value = Audio(
+            speed=1, project_id=1, texts=[AudioText(index=1, content='테스트입니다.')]
+            )
 
-    assert len(res.json()) == 1
-    assert res.status_code == 200
+        with app.container.audio_package.audio_repository.override(audio_repo_mock):
+            res = client.get("/api/v1/audios/1")
+        
+        assert res.status_code == 200
+        data = res.json()
+        assert data == {"speed": 1, "project_id": 1, "texts": [{"index": 1 ,"content":"테스트입니다."}]}
+        
+    def test_create_audio(self):
+        '''오디오 생성 테스트'''
+        pass
+        
+class TestAudioText:
     
-# @pytest.fixture(scope='function')
-# def test_add_audio_text():
-#     pass
-
-# @pytest.fixture(scope='function')
-# def test_insert_audio_between_texts():
-#     pass
-
-# @pytest.fixture(scope='function')
-# def test_delete_audio_text():
-#     pass
+    @pytest.fixture(scope="class")
+    def audio_text_repo_mock(self):
+        return mock.Mock(spec=AudioTextRepository)
