@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime, String
+from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -20,9 +20,10 @@ class AudioText(Base):
     __tablename__ = 'audio_text'
     
     id = Column(Integer, primary_key=True)
-    index = Column(Integer, unique=True)
+    index = Column(Integer)
     content = Column(Text)
     audio_id = Column(Integer, ForeignKey("audio.id"))
+    UniqueConstraint(audio_id, index)
     
     audio = relationship("Audio", back_populates="texts", lazy='subquery')
     

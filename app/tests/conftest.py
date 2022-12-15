@@ -15,7 +15,7 @@ engine = create_engine(
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def session():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -28,7 +28,7 @@ def session():
         db.close()
 
 
-@pytest.fixture(autouse=True, scope='module')
-def client():
-    client = TestClient(app)
-    return client
+@pytest.fixture
+def client() -> TestClient:
+    with TestClient(app=app) as client:
+        yield client
