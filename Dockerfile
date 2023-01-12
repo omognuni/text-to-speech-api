@@ -2,7 +2,7 @@ FROM python:3.9-slim
 LABEL maintainer='Omognuni'
 
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./app /app

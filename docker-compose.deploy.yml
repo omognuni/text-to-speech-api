@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  tts:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+      - ./static/media:/vol/web/media
+      - ./static/static:/vol/web/static
+      - tts-static-data:/vol/web
+    command: >
+      bash -c 'while !</dev/tcp/tts_db/5432; do sleep 1; done; uvicorn main:app --reload --host 0.0.0.0'
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.tts.loadbalancer.server.port=8000
+      - traefik.http.routers.tts-http.rule=Host(`${TTS_HOST:-localhost}`)
+      - traefik.http.routers.tts-http.entrypoints=web
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - tts_db
+    networks:
+      - tts
+
+  tts_db:
+    image: postgres:13-alpine
+    volumes:
+      - tts-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - tts
+
+  traefik:
+    image: traefik:v2.9
+    restart: always
+    command:
+      - --providers.docker.exposedByDefault=false
+      - --entryPoints.web.address=:80
+    ports:
+      - "80:80"
+    labels:
+      - traefik.enable=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - tts
+
+volumes:
+  tts-data:
+  tts-static-data:
+
+
+networks:
+  tts:
