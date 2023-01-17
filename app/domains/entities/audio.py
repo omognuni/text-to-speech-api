@@ -1,38 +1,21 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime, String, UniqueConstraint
-from sqlalchemy.orm import relationship
-from datetime import datetime
-from domains.entities import Model
-    
+from pydantic import BaseModel, Field
 
-class Audio(Model):
-    __tablename__ = 'audio'
-    
-    id = Column(Integer, primary_key=True)
-    speed = Column(Integer, default=1)
-    project_id = Column(Integer, ForeignKey("audio_project.id"))
-    updated_at = Column(DateTime, default=datetime.now())
-    
-    texts = relationship("AudioText", back_populates="audio", order_by="asc(AudioText.index)", cascade='all,delete', lazy='subquery')
-    project = relationship("AudioProject", back_populates="audios", lazy='subquery')
+from app.domains.entities.text import Text
 
 
-class AudioText(Model):
-    __tablename__ = 'audio_text'
-    
-    id = Column(Integer, primary_key=True)
-    index = Column(Integer)
-    content = Column(Text)
-    audio_id = Column(Integer, ForeignKey("audio.id"))
-    UniqueConstraint(audio_id, index)
-    
-    audio = relationship("Audio", back_populates="texts", lazy='subquery')
-    
-class AudioProject(Model):
-    __tablename__ = 'audio_project'
-    
-    id = Column(Integer, primary_key=True)
-    title = Column(String, default='')
-    created_at = Column(DateTime, default=datetime.now())
-    updated_at = Column(DateTime, default=datetime.now())
-    
-    audios = relationship("Audio", back_populates="project", cascade='all,delete', lazy='subquery')
+class Audio(BaseModel):
+    speed: int = Field(gt=0, default=1)
+    text: str
+    project_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class AudioDetail(BaseModel):
+    speed: int
+    project_id: int
+    texts: list[Text] = []
+
+    class Config:
+        orm_mode = True
