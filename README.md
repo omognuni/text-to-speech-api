@@ -10,13 +10,9 @@ docker-compose up --build
 <img src='/images/ERD.png'>
 
 ### TODO
-- 테스트 코드 작성
-- ~~다운로드 구현~~
-- 주석 작성
-- user 생성
-- ~~refactor (db.add()/commit()/refresh 반복 없애기)~~
-- ~~파일 구조 변경~~
-- ~~url 구조 변경~~
+- Clean architecture 적용
+  - 적용 전 버전
+- Test code 작성
 
 ### 설명
 1. Project 생성
@@ -65,3 +61,10 @@ docker-compose up --build
 | Audio 텍스트 삭제 | POST   | api/v1/audio/{audio_id}/remove |
 | Audio 다운로드    | POST   | api/v1/audio/{audio_id}/media  |
 
+
+
+### 고려사항
+- text를 음성 파일로 변환 중에 멈추면(서버 다운) 어떻게 해야하는지 -> is_converted 행을 audio 모델에 추가하여 변환 완료 시에만 True로 설정
+- 동시성 제어는 어떻게 할 것인지? (음성 파일 변환 중에 다른 유저에 의해 text가 업데이트 되는 경우)
+- media 파일을 저장하는 기능은 어느 layer에 생성해야하는지?
+- audio와 text의 1:N 관계에서 N+1 문제는 어떻게 해결할 것인지? -> relationship(... lazy='selectin')
