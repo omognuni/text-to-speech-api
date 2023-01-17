@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, List
+from typing import List
 from pydantic import BaseModel
+from app.domains.entities import Project
 
 
 class ProjectRepository(ABC):
@@ -9,7 +10,7 @@ class ProjectRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_or_create(self, model: BaseModel) -> Tuple(bool, BaseModel):
+    def get_or_create(self, model: BaseModel) -> tuple[bool, Project]:
         raise NotImplementedError
 
     @abstractmethod
@@ -17,11 +18,11 @@ class ProjectRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def create(self, model: BaseModel) -> BaseModel:
+    def create(self, model: BaseModel) -> Project:
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, instance_id, model: BaseModel) -> BaseModel:
+    def update(self, instance_id, model: BaseModel) -> Project:
         raise NotImplementedError
 
     @abstractmethod

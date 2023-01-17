@@ -3,9 +3,9 @@ from dependency_injector import containers, providers
 from fastapi.staticfiles import StaticFiles
 
 from app.infrastructures.database.main import Database
-from app.infrastructures.database.repository.audio import AudioRepository
-from app.infrastructures.database.repository.project import ProjectRepository
-from app.infrastructures.database.repository.text import TextRepository
+from app.infrastructures.database.repository.audio import AudioRepositoryImpl
+from app.infrastructures.database.repository.project import ProjectRepositoryImpl
+from app.infrastructures.database.repository.text import TextRepositoryImpl
 
 from app.applications.services.audio import AudioService
 from app.applications.services.project import ProjectService
@@ -19,17 +19,17 @@ class AudioContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     project_repository = providers.Factory(
-        ProjectRepository,
+        ProjectRepositoryImpl,
         session_factory=db.provided.session
     )
 
     audio_repository = providers.Factory(
-        AudioRepository,
+        AudioRepositoryImpl,
         session_factory=db.provided.session,
     )
 
-    audio_text_repository = providers.Factory(
-        TextRepository,
+    text_repository = providers.Factory(
+        TextRepositoryImpl,
         session_factory=db.provided.session,
     )
 
@@ -38,7 +38,7 @@ class AudioContainer(containers.DeclarativeContainer):
         repository=audio_repository,
     )
 
-    audio_text_service = providers.Factory(
+    text_service = providers.Factory(
         TextService,
         repository=text_repository
     )

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from router import router
+from app.infrastructures.fastapi.router import router
 from app.infrastructures.settings import ApplicationSettings
 from app.infrastructures.containers import ApplicationContainer
 
@@ -9,8 +9,8 @@ def create_app() -> FastAPI:
     container = ApplicationContainer()
     container.config.from_pydantic(ApplicationSettings())
 
-    container.wire(packages=['api'])
-    container.audio_package.wire(packages=['api'])
+    container.wire(packages=['app.controllers'])
+    container.audio_package.wire(packages=['app.controllers'])
 
     db = container.db()
     db.create_database()

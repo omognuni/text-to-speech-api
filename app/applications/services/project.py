@@ -1,7 +1,7 @@
+from typing import List, Tuple
 
 from app.applications.interfaces.project_repository import ProjectRepository
-
-from app.domains.entities.project import Project
+from app.domains.entities import Project
 
 
 class ProjectService:

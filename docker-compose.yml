@@ -15,7 +15,7 @@ services:
       - tts-static-data:/vol/web
 
     command: >
-      bash -c 'while !</dev/tcp/tts_db/5432; do sleep 1; done; uvicorn main:app --reload --host 0.0.0.0'
+      bash -c 'while !</dev/tcp/tts_db/5432; do sleep 1; done; uvicorn app.infrastructures.fastapi.main:app --reload --host 0.0.0.0'
 
     environment:
       - DATABASE_URL=postgresql://tts_user:testpass@tts_db:5432/tts

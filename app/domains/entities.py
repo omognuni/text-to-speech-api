@@ -1,15 +1,10 @@
-from sqlalchemy import Column, ForeignKey, Integer, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, DateTime, Boolean, Text, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from app.infrastructures.database.orm import Model
 from app.infrastructures.database.main import Base
 
 
-class Model(Base):
-    ...
-
-
-class AudioModel(Model):
+class Audio(Base):
     __tablename__ = 'audio'
 
     id = Column(Integer, primary_key=True)
@@ -18,12 +13,12 @@ class AudioModel(Model):
     updated_at = Column(DateTime, default=datetime.now())
     is_converted = Column(Boolean, default=False)
 
-    texts = relationship("TextModel", back_populates="audio",
-                         order_by="asc(TextModel.index)", cascade='all,delete', lazy='selectin')
+    texts = relationship("Text", back_populates="audio",
+                         order_by="asc(Text.index)", cascade='all,delete', lazy='selectin')
     project = relationship("Project", back_populates="audios", lazy='selectin')
 
 
-class ProjectModel(Model):
+class Project(Base):
     __tablename__ = 'project'
 
     id = Column(Integer, primary_key=True)
@@ -31,11 +26,11 @@ class ProjectModel(Model):
     created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(DateTime, default=datetime.now())
 
-    audios = relationship("AudioModel", back_populates="project",
+    audios = relationship("Audio", back_populates="project",
                           cascade='all,delete', lazy='selectin')
 
 
-class TextModel(Model):
+class Text(Base):
     __tablename__ = 'text'
 
     id = Column(Integer, primary_key=True)
@@ -44,4 +39,4 @@ class TextModel(Model):
     audio_id = Column(Integer, ForeignKey("audio.id"))
     UniqueConstraint(audio_id, index)
 
-    audio = relationship("AudioModel", back_populates="texts", lazy='selectin')
+    audio = relationship("Audio", back_populates="texts", lazy='selectin')

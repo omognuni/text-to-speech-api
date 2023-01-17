@@ -5,7 +5,7 @@ from starlette.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base
+from app.infrastructures.database.main import Base
 from app.infrastructures.fastapi.main import app
 
 

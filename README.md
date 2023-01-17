@@ -62,6 +62,8 @@ docker-compose up --build
 | Audio 다운로드    | POST   | api/v1/audio/{audio_id}/media  |
 
 
+### 전체 흐름
+
 
 ### 고려사항
 - text를 음성 파일로 변환 중에 멈추면(서버 다운) 어떻게 해야하는지 -> is_converted 행을 audio 모델에 추가하여 변환 완료 시에만 True로 설정

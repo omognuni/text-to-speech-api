@@ -1,5 +1,7 @@
+from typing import List, Tuple
+
 from app.applications.interfaces.audio_repository import AudioRepository
-from app.domains.entities.audio import Audio
+from app.domains.entities import Audio
 
 
 class AudioService:
@@ -7,20 +9,17 @@ class AudioService:
     def __init__(self, repository: AudioRepository) -> None:
         self._repository = repository
 
-    def get_objects(self):
+    def get_objects(self) -> List[Audio]:
         return self._repository.get_all()
 
-    def get_object_by_id(self, audio: Audio):
+    def get_object_by_id(self, audio: Audio) -> Audio:
         return self._repository.get_by_id(audio.id)
 
-    def create(self, audio: Audio):
-        return self._repository.add(audio)
+    def create(self) -> Audio:
+        return self._repository.add()
 
-    def get_or_create(self, audio: Audio):
-        return self._repository.get_or_create(audio)
-
-    def update(self, audio: Audio):
+    def update(self, audio: Audio) -> Audio:
         return self._repository.update(audio)
 
-    def delete(self, audio: Audio):
+    def delete(self, audio: Audio) -> None:
         return self._repository.delete(audio.id)

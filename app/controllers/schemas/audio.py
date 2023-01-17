@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
 
-from app.domains.entities.text import Text
+from app.controllers.schemas.text import TextSchema
 
 
-class Audio(BaseModel):
+class AudioSchema(BaseModel):
     speed: int = Field(gt=0, default=1)
     text: str
     project_id: int
@@ -12,10 +12,10 @@ class Audio(BaseModel):
         orm_mode = True
 
 
-class AudioDetail(BaseModel):
+class AudioDetailSchema(BaseModel):
     speed: int
     project_id: int
-    texts: list[Text] = []
+    texts: list[TextSchema] = []
 
     class Config:
         orm_mode = True
