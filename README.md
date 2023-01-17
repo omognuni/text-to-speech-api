@@ -11,7 +11,7 @@ docker-compose up --build
 
 ### TODO
 - Clean architecture 적용
-  - 적용 전 버전
+  - [적용 전 버전](https://github.com/omognuni/text-to-speech-api/tree/d8d41fe55e6d6333317e85bd49668747f34f418d)
 - Test code 작성
 
 ### 설명
